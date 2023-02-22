@@ -11,15 +11,21 @@ namespace mission06_nathanck.Models
         [Key]
         [Required]
         public int MovieId { get; set; }
-        public string Genre { get; set; }
+        [Required]
         public string Title { get; set; }
+        [Required]
         public short Year { get; set; }
+        [Required]
         public string Director { get; set; }
+        [Required]
         public string Rating { get; set; }
+        [Required]
         public bool Edited { get; set; }
         public string LentTo { get; set; }
+        [MaxLength(25)]
         public string Note { get; set; }
 
-
+        public int MovieCategoryId { get; set; }
+        public MovieCategory MovieCategory { get; set; }
     }
 }

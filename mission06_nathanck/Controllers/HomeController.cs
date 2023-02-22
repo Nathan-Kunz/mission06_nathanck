@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using mission06_nathanck.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,12 +12,12 @@ namespace mission06_nathanck.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        
         private MovieReviewContext blahcontext { get; set; }
 
-        public HomeController(ILogger<HomeController> logger, MovieReviewContext someName)
+        public HomeController( MovieReviewContext someName)
         {
-            _logger = logger;
+            
             blahcontext = someName;
         }
 
@@ -25,29 +26,66 @@ namespace mission06_nathanck.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-       
+           
 
         [HttpGet]
         public IActionResult form()
         {
+            ViewBag.Movies = blahcontext.Movies.ToList();
             return View();
         }
         [HttpPost]
         public IActionResult form(ApplicationResponse ar)
         {
-            blahcontext.Add(ar);
-            blahcontext.SaveChanges();
-            return View("form");
+          
+            
+                blahcontext.Add(ar);
+                blahcontext.SaveChanges();
+                return View("Index");
+            
+          
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpGet]
+        public IActionResult Edit(int id)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            ViewBag.Movies = blahcontext.Movies.ToList();
+
+            var movie = blahcontext.responses.Single(x => x.MovieId==id);
+            return View("form", movie);
         }
+
+        [HttpPost]
+        public IActionResult Edit(ApplicationResponse blah)
+        {
+            blahcontext.Update(blah);
+            blahcontext.SaveChanges();
+            return RedirectToAction("movies");
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var movie = blahcontext.responses.Single(x => x.MovieId == id);
+            return View(movie);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(ApplicationResponse ar)
+        {
+            blahcontext.responses.Remove(ar);
+            blahcontext.SaveChanges();
+            return RedirectToAction("movies");
+        }
+
+      
+        public IActionResult movies()
+        {
+            var mList = blahcontext.responses
+                .Include(x => x.MovieCategory)
+                .ToList();
+            return View(mList);
+        }
+        
     }
 }
